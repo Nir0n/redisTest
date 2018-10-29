@@ -45,4 +45,4 @@ def setError(conn, message):
         else:
             errors = errors.decode("utf-8") + " " + message.decode("utf-8")
         print("error")
-        return conn.set("errors",errors)
+        conn.set("errors",errors)
