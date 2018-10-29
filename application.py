@@ -8,6 +8,8 @@ class Application(object):
     def searchForRole(self):
         clientsList=r.client_list()
         clientsRole=[d['name'] for d in clientsList if 'name' in d]
+        if (clientsRole.count("generator")>1 and self.conn.client_getname() == 'generator'):
+            self.conn.client_setname('handler')
         if ('generator' in clientsRole):
             if(self.conn.client_getname() != 'generator'):
                 self.conn.client_setname('handler')
