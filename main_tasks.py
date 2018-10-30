@@ -8,34 +8,27 @@ def messageGenerator(size=10, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 def postMessage(conn):
-    conn.set("message",messageGenerator())
+    try:
+        pipe=conn.pipeline()
+        pipe.watch("message")
+        return pipe.set("message",messageGenerator())
+    except WatchError:
+        print("Сообщение изменено во время выполнения операции")
 
 def getMessage(conn):
-    message=conn.get("message")
-    if message is not None:
-        setError(conn, message)
-        conn.delete("message")
-        print("get")
-    else:
-        print("Сообщения еще нет")
-
-# def getMessage(conn):
-#     with conn.pipeline() as pipe:
-#         try:
-#             pipe.watch("message")
-#             if pipe.exists("message"):
-#                 pipe.multi()
-#                 if (random.uniform(0, 100) > 95):
-#                     if (pipe.get("errors") is None):
-#                         print("error")
-#                         pipe.set("errors", pipe.get("message"))
-#                 pipe.delete("message")
-#             print("del")
-#             return pipe.execute()
-#         except WatchError:
-#             print("Сообщения еще нет")
-
-
+    pipe=conn.pipeline()
+    try:
+        pipe.watch("message")
+        if pipe.exists("message"):
+            message=pipe.get("message")
+            pipe.multi()
+            print("get")
+            setError(conn,message)
+            pipe.delete("message")
+            print("del")
+            return pipe.execute()
+    except WatchError:
+        print("Сообщение изменено во время выполнения операции")
 
 def setError(conn, message):
     if (random.uniform(0, 100)>95):
