@@ -28,7 +28,7 @@ def getMessage(conn):
             print("del")
             return pipe.execute()
     except WatchError:
-        print("Сообщение изменено во время выполнения операции")
+        print("Сообщение удалено")
 
 def setError(conn, message):
     if (random.uniform(0, 100)>95):
