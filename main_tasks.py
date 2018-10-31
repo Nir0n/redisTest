@@ -23,9 +23,9 @@ def getMessage(conn):
             message=pipe.get("message")
             pipe.multi()
             print("get")
-            setError(conn,message)
+            if message is not None:
+                setError(conn,message)
             pipe.delete("message")
-            print("del")
             return pipe.execute()
     except WatchError:
         print("Сообщение удалено")
