@@ -1,5 +1,6 @@
 from connection import r
-from main_tasks import postMessage, getMessage
+import string
+import random
 
 class Application(object):
     def __init__(self):
@@ -18,9 +19,22 @@ class Application(object):
 
     def executeTask(self):
         if self.conn.client_getname() == 'handler':
-            getMessage(self.conn)
+            self.getMessage()
         else:
-            print("post")
-            postMessage(self.conn)
+            self.postMessage()
+
+    def messageGenerator(self,size=10, chars=string.ascii_uppercase + string.digits):
+        return ''.join(random.choice(chars) for _ in range(size))
+
+    def postMessage(self):
+        return self.conn.rpush("messages",self.messageGenerator())
+
+    def getMessage(self):
+        message = self.conn.rpop("messages")
+        if (random.uniform(0, 100) > 95):
+            self.setError(message)
+
+    def setError(self, message):
+        return self.conn.rpush("errors", message)
 
 
